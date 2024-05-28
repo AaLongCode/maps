@@ -1,0 +1,9 @@
+Tag 1 
+ - Zeichnen der map with tkinker 
+ - api abfrage mit cordianten 
+
+ Tag 2 
+ - zwichenspeicher der nodes in hastable
+- https://github.com/gravitystorm/openstreetmap-carto/tree/master/style
+
+Leipzig: 51.336436, 12.382162,51.343575 ,12.369815
