@@ -1,7 +1,7 @@
-from tkinter import Tk, Canvas, Frame, BOTH
-import json 
-import hashtable
+import svgwrite.drawing
 import Settings
+import svgwrite
+import json 
 
 def hash_nodes(data) -> dict:
     out = dict()
@@ -14,17 +14,18 @@ def hash_nodes(data) -> dict:
 
 
 
-class Example(Frame):
+class Svgdrawer():
     def __init__(self):
         super().__init__()
 
     def draw(self,data:json):
         nodes=hash_nodes(data)
-        canvas = Canvas(self)
         conversion_longitude = 800/(Settings.origin["Longitude East"]-Settings.origin["Longitude West"])
         conversion_latitude = 800/(Settings.origin["Latitude North"]-Settings.origin["Latitude South"])
         lastPointLon = None
         lastPointLat = None
+        map = svgwrite.Drawing(filename='maptest.svg', size=(800,800) )
+
         for i in data['elements']:
             # if i['type']=='node':
             #     print(i)
@@ -36,20 +37,22 @@ class Example(Frame):
                 #print(i)
                 for j in i['nodes']:
                     if lastPointLon!=None and lastPointLat!=None:
-                        xcor= round((-Settings.origin["Longitude West"] + lastPointLon)*conversion_longitude)
-                        ycor= round((Settings.origin["Latitude North"] - lastPointLat)*conversion_latitude)
                         newPointLon = None if nodes.get(str(j)+'lon') is None else float(nodes[str(j)+'lon'])
                         newPointLat = None if nodes.get(str(j)+'lat') is None else float(nodes[str(j)+'lat'])
                         #print(str(newPointLat)+' '+str(newPointLon))
                         if newPointLon!=None and newPointLat!=None:
                             xcor1= round((-Settings.origin["Longitude West"] + newPointLon)*conversion_longitude)
                             ycor1= round((Settings.origin["Latitude North"] - newPointLat)*conversion_latitude)
-                            canvas.create_line(xcor,ycor,xcor1,ycor1)
+                            path.push(f"{xcor1},{ycor1}")
                         lastPointLon = newPointLon
                         lastPointLat = newPointLat
                     else:
                         lastPointLon = None if nodes.get(str(j)+'lon') is None else float(nodes[str(j)+'lon'])
                         lastPointLat = None if nodes.get(str(j)+'lat') is None else float(nodes[str(j)+'lat'])
+                        if lastPointLat != None and lastPointLon!=None:
+                            xcor= round((-Settings.origin["Longitude West"] + lastPointLon)*conversion_longitude)
+                            ycor= round((Settings.origin["Latitude North"] - lastPointLat)*conversion_latitude)
+                            path=map.add(map.path(f'M{xcor},{ycor} ',fill="none", stroke="black"))
                     # for k in data['elements']:
                     #     if k['id']==j:
                     #         if lastPoint!=None:
@@ -63,25 +66,14 @@ class Example(Frame):
                     #             lastPoint=k
             lastPointLon = None
             lastPointLat = None
-
-
-
-
-        self.master.title("Map")
-        self.pack(fill=BOTH, expand=1)
-
-        canvas.pack(fill=BOTH, expand=1)
+        map.save()
 
 
 def main():
     f = open('testdaten_leipzig_skeleton.json')
     data = json.load(f)
-    root = Tk()
-    ex = Example()
-    ex.draw(data,)
-    root.geometry("800x800")
-    root.mainloop()
-
+    ex = Svgdrawer()
+    ex.draw(data)
 
 if __name__ == '__main__':
     main()

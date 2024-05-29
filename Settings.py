@@ -7,3 +7,5 @@ origin = {
     "Longitude East" : 12.382162
 
 }
+zoomlevel = 1 
+zoomstep = 0.007139000000002227
